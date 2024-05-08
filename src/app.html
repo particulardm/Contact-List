@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact List</title>
+</head>
+<body>
+    <button id="getAllContacts">Get All Contacts</button>
+
+    <ul id="contactsList"></ul>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const getAllContactsButton = document.getElementById('getAllContacts');
+
+    getAllContactsButton.addEventListener('click', function() {
+        fetch('/api/contacts')
+            .then(response => response.json()) 
+            .then(data => {
+                let contactsHtml = '';
+                data.contacts.forEach(contact => {
+                    contactsHtml += `<li>${contact.name} - ${contact.email}</li>`;
+                });
+                contactsList.innerHTML = contactsHtml;
+            })
+            .catch(err => {
+                console.error("Error fetching contacts:", err);
+            });
+    });
+});
+    </script>
+</body>

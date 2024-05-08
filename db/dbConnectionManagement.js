@@ -19,6 +19,7 @@ const disconnectDB = async function() {
         process.exit(0);
     } catch(err) {
         console.error('Error while disconnecting from DB,', err);
+        process.exit(1);
     }
 }
 

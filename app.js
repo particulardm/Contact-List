@@ -4,6 +4,7 @@ const { connectDB, disconnectDB } = require('./db/dbConnectionManagement');
 const contactRouter = require('./routes/contactRoute');
 const userRouter = require('./routes/userRoute');
 const verify = require('./middlewares/authVerification');
+const path = require('path')
 
 const uri = process.env.URI;
 const port = process.env.PORT || 3000;
@@ -11,8 +12,10 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'src')));
 
-app.use('/api/contacts', verify, contactRouter);
+// app.use('/api/contacts', verify, contactRouter);
+app.use('/api/contacts', contactRouter);
 app.use('/user', userRouter);
 
 connectDB(uri);
@@ -26,3 +29,4 @@ app.get('/', (req, res) => {
 })
 
 process.on('SIGINT', disconnectDB);
+process.on('SIGTERM', disconnectDB);
