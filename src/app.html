@@ -3,30 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <title>Contact List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .main-el{
+            margin-top: 20px;
+        }
+
+        .contacts-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .contacts-list li {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+    </style>
 </head>
 <body>
-    <button id="getAllContacts">Get All Contacts</button>
+    <div class="container">
+        <button id="getAllContacts">Get All Contacts</button>
+        <ul id="contactsList"></ul>
 
-    <ul id="contactsList"></ul>
+        <form id="addContact" class="main-el">
+            <div class="form-group">
+                <label for="contactName">Name</label>
+                <input type="text" id="contactName" required>
+            </div>
+            <div class="form-group">
+                <label for="contactEmail">Email</label>
+                <input type="email" id="contactEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="contactPhone">Phone</label>
+                <input type="phone" id="contactPhone" required>
+            </div>
+            <button type="submit">Add Contact</button>
+        
+        </form>
+
+        <div class="main-el">
+            <label for="contactId">Contact ID</label>
+            <input type="text" id="contactId">
+            <button id="getContactById">Get Contact by ID</button>
+        </div>
+    </div>
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const getAllContactsButton = document.getElementById('getAllContacts');
+        const getAllContactsButton = document.getElementById('getAllContacts');
 
-    getAllContactsButton.addEventListener('click', function() {
-        fetch('/api/contacts')
-            .then(response => response.json()) 
-            .then(data => {
+        getAllContactsButton.addEventListener('click', async function() {
+            try {
+                const response = await fetch('/api/contacts');
+                if (!response.ok) throw new Error('Cannot get all the contacts', response.error);
+                const contactsObject = await response.json();
                 let contactsHtml = '';
-                data.contacts.forEach(contact => {
+
+                contactsObject.contacts.forEach(contact => {
                     contactsHtml += `<li>${contact.name} - ${contact.email}</li>`;
-                });
+                    });
+
                 contactsList.innerHTML = contactsHtml;
-            })
-            .catch(err => {
+            } catch(err) {
                 console.error("Error fetching contacts:", err);
+            };
+        });
+
+        const addNewContactForm = document.getElementById('addContact');
+        addNewContactForm.addEventListener('submit', async function() {
+            event.preventDefault();
+            const newContact = {
+                name: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                phone: document.getElementById('contactPhone').value
+            };
+
+            try {
+                const response = await fetch('api/contacts', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newContact)
             });
+                if (!response.ok) throw new Error('Cannot create a new contact', response.error);
+
+                const contact = await response.json();
+                alert('Contact added!!');
+                addNewContactForm.reset();
+            } catch(err) {
+                console.error("Error creating a contact:", err);
+            }
+        });
+
+        const getContactByIdButton = document.getElementById('getContactById');
+        getContactByIdButton.addEventListener('click', async function() {
+            const contactId = document.getElementById('contactId').value;
+            
+            try {
+                const response = await fetch(`/api/contacts/${contactId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch contact by ID', response.error);
+                }
+                
+                const contactsObject = await response.json();
+                contactsList.innerHTML = `<li>${contactsObject.contact.name} - ${contactsObject.contact.email}</li>`;
+            } catch (err) {
+                console.error('Error fetching contact by ID:', err);
+            }
+        });
     });
-});
     </script>
 </body>
