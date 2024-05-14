@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'src')));
 
-// app.use('/api/contacts', verify, contactRouter);
+app.use('/api/contacts', verify, contactRouter);
 app.use('/api/contacts', contactRouter);
 app.use('/user', userRouter);
 

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const contactModel = require('./contactModel');
 
 const Schema = mongoose.Schema;
 
@@ -14,7 +15,11 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    contacts: [{ 
+        type: mongoose.Types.ObjectId,
+        ref: contactModel
+    }]
 });
 
 const userModel = mongoose.model('User', userSchema);

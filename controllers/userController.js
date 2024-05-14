@@ -44,7 +44,7 @@ const loginUser = async function(req, res) {
             return res.status(400).json({ message: "Please specify a correct password for this user!!"});
         }
 
-        const token = jwt.sign({ username: user.username, email: user.email }, secret, { expiresIn: '36h' });
+        const token = jwt.sign({ username: user.username, email: user.email, id: user._id }, secret, { expiresIn: '36h' });
 
         res.setHeader('Authorization', `Bearer ${token}`);
         res.json({ message: "You are now logged-in!! Feel free to proceed to the private routes"})
