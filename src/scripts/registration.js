@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const registrationForm = document.getElementById('registerForm');
-        registrationForm.addEventListener('submit', async function() {
+        registrationForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             const newUser = {
                 username: document.getElementById('username').value,

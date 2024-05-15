@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     getAllContactsButton.addEventListener('click', async function() {
         const token = localStorage.getItem('token');
-        
+
         try {
             const response = await fetch('api/contacts', {
                 method: 'GET',
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const addNewContactForm = document.getElementById('addContact');
-    addNewContactForm.addEventListener('submit', async function() {
+    addNewContactForm.addEventListener('submit', async function(event) {
         event.preventDefault();
         const token = localStorage.getItem('token');
         const newContact = {
