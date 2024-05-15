@@ -3,11 +3,12 @@ const secret = process.env.SECRET;
 
 const verify = function(req, res, next) {
     const header = req.headers.Authorization || req.headers.authorization;
-    const token = header.split(' ')[1];
 
-    if (!token) {
+    if (!header) {
         return res.status(400).json({ error: 'No token provided..' });
     }
+
+    const token = header.split(' ')[1];
 
     try {
     const decoded = jwt.verify(token, secret);
