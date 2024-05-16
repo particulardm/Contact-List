@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
     const getAllContactsButton = document.getElementById('getAllContacts');
-
     getAllContactsButton.addEventListener('click', async function() {
         const token = localStorage.getItem('token');
 
@@ -60,9 +59,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const getContactByIdButton = document.getElementById('getContactById');
     getContactByIdButton.addEventListener('click', async function() {
         const contactId = document.getElementById('getContactId').value;
+        const token = localStorage.getItem('token');
         
         try {
-            const response = await fetch(`/api/contacts/${contactId}`);
+            const response = await fetch(`api/contacts/${contactId}`, {
+                method: 'GET',
+                headers: {
+                'Authorization': token
+            },
+        });
             if (!response.ok) {
                 const errorData = await response.json();
                 contactsList.innerHTML = `<p>${errorData.message}</p>`;
@@ -79,12 +84,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const deleteContactByIdButton = document.getElementById('deleteContactById');
     deleteContactByIdButton.addEventListener('click', async function() {
         const contactId = document.getElementById('deleteContactId').value;
+        const token = localStorage.getItem('token');
         
         try {
             const response = await fetch(`/api/contacts/${contactId}`, {
                 method: 'DELETE',
                 headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': token
             }
         });
             if (!response.ok) {

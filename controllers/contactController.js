@@ -5,6 +5,7 @@ const User = require('../models/userModel');
 // all the routes below are private:
 const getAllContacts = async function(req, res) {
     const userId = req.user.id;
+    
     try {
         const contacts = await User
             .findOne({ _id: userId})
