@@ -1,15 +1,29 @@
 const Contact = require('../models/contactModel');
 const User = require('../models/userModel');
+const crypto = require('node:crypto');
+
+const ETags = new Set();
 
 
 // all the routes below are private:
 const getAllContacts = async function(req, res) {
     const userId = req.user.id;
+    const ETag = req.headers['if-none-match'];
+
+    if (ETags.has(ETag)) {
+        return res.status(304).end();
+    }
     
     try {
         const contacts = await User
             .findOne({ _id: userId})
             .populate('contacts');
+
+        const generatedETag = crypto.createHash('md5').update(JSON.stringify(contacts)).digest('hex');
+        ETags.add(generatedETag);
+
+        res.setHeader('ETag', generatedETag);
+        res.setHeader('Cache-Control', 'no-cache');
         res.status(200).json({ message: "The following contacts associated with your profile in a database atm:", contacts: contacts.contacts });
     } catch(err) {
         console.error("Couldn't get the contacts", err);
@@ -33,6 +47,8 @@ const postContact = async function(req, res) {
             { new: true }
         );
 
+        const ETagToDelete = req.headers['etagtodelete'];
+        ETags.delete(ETagToDelete);
         res.status(200).json({ message: "Contact posted", contact });
     } catch(err) {
         console.error(err, "Couldn't post a contact");
@@ -72,7 +88,6 @@ const deleteSingleContact = async function(req, res) {
             { new: true }
         )
 
-        console.log('user after deleting a contact:', editedUser);
         res.status(200).json({ message: "Contact deleted", contact });
     } catch(err) {
         console.error("Couldn't delete a contact by id", err);

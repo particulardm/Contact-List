@@ -1,28 +1,40 @@
+
 document.addEventListener('DOMContentLoaded', function() {
     const getAllContactsButton = document.getElementById('getAllContacts');
     getAllContactsButton.addEventListener('click', async function() {
         const token = localStorage.getItem('token');
+        const ETag = localStorage.getItem('ETag');
 
         try {
             const response = await fetch('api/contacts', {
                 method: 'GET',
                 headers: {
-                'Authorization': token
+                'Authorization': token,
+                'If-None-Match': ETag
             },
+                cache: 'no-store'
         });
-            if (!response.ok) {
-                const errorData = await response.json();
-                contactsList.innerHTML = `<p>${errorData.message}</p>`;
-                throw new Error(errorData.message);
-            }
-            const contactsObject = await response.json();
-            let contactsHtml = '';
 
-            contactsObject.contacts.forEach(contact => {
-                contactsHtml += `<li>${contact.name} - ${contact.email}</li>`;
-                });
+        if (response.status === 304) {
+            return; 
+        }
 
-            contactsList.innerHTML = contactsHtml;
+        if (!response.ok) {
+             const errorData = await response.json();
+            contactsList.innerHTML = `<p>${errorData.message}</p>`;
+            throw new Error(errorData.message);
+        }
+        const contactsObject = await response.json();
+        const newETag = response.headers.get('ETag');
+
+        localStorage.setItem('ETag', newETag);
+        let contactsHtml = '';
+
+        contactsObject.contacts.forEach(contact => {
+        contactsHtml += `<li>${contact.name} - ${contact.email}</li>`;
+        });
+
+        contactsList.innerHTML = contactsHtml;
         } catch(err) {
             console.error("Error fetching contacts:", err);
         };
@@ -32,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     addNewContactForm.addEventListener('submit', async function(event) {
         event.preventDefault();
         const token = localStorage.getItem('token');
+        const ETagToDelete = localStorage.getItem('ETag');
         const newContact = {
             name: document.getElementById('contactName').value,
             email: document.getElementById('contactEmail').value,
@@ -43,12 +56,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token
+                'Authorization': token,
+                'ETagToDelete': ETagToDelete
             },
             body: JSON.stringify(newContact)
         });
             if (!response.ok) throw new Error('Cannot create a new contact', response.error);
 
+            localStorage.removeItem('ETag');
             alert('Contact added!!');
             addNewContactForm.reset();
         } catch(err) {
