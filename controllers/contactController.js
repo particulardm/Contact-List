@@ -82,12 +82,14 @@ const deleteSingleContact = async function(req, res) {
 
     try {
         const contact = await Contact.findByIdAndDelete( _id );
-        const editedUser = await User.findOneAndUpdate(
+        await User.findOneAndUpdate(
             { _id: userId }, 
             { $pull: { contacts: _id} }, 
             { new: true }
         )
 
+        const ETagToDelete = req.headers['etagtodelete'];
+        ETags.delete(ETagToDelete);
         res.status(200).json({ message: "Contact deleted", contact });
     } catch(err) {
         console.error("Couldn't delete a contact by id", err);

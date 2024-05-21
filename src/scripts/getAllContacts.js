@@ -100,13 +100,15 @@ document.addEventListener('DOMContentLoaded', function() {
     deleteContactByIdButton.addEventListener('click', async function() {
         const contactId = document.getElementById('deleteContactId').value;
         const token = localStorage.getItem('token');
+        const ETagToDelete = localStorage.getItem('ETag');
         
         try {
             const response = await fetch(`/api/contacts/${contactId}`, {
                 method: 'DELETE',
                 headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token
+                'Authorization': token, 
+                'ETagToDelete': ETagToDelete
             }
         });
             if (!response.ok) {
@@ -115,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(errorData.message);
             }
             
+            localStorage.removeItem('ETag');
             const contactsObject = await response.json();
             contactsList.innerHTML = `<p>Contact deleted: ${contactsObject.contact.name} - ${contactsObject.contact.email}</p>`;
         } catch (err) {
